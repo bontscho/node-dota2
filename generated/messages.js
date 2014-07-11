@@ -41,6 +41,10 @@ Dota2.EDOTAGCMsg = {
     k_EMsgGCJoinChatChannelResponse: 7010,
     k_EMsgGCFindSourceTVGames: 7031,
     k_EMsgGCSourceTVGamesResponse: 7032,
+
+    k_EMsgGCRequestMatches: 7064,
+    k_EMsgGCRequestMatchesResponse: 7065,
+
     k_EMsgGCLeaveChatChannel: 7272,
     k_EMsgGCOtherJoinedChannel: 7013,
     k_EMsgGCOtherLeftChannel: 7014,
@@ -107,7 +111,9 @@ Dota2.EDOTAGCMsg = {
     k_EMsgGCLeaguesInMonthRequest: 7195,
     k_EMsgGCLeaguesInMonthResponse: 7196,
 
-    k_EMsgDOTALiveLeagueGameUpdate: 7402
+    k_EMsgDOTALiveLeagueGameUpdate: 7402,
+    k_EMsgRequestLeagueInfo: 7147,
+    k_EMsgResponseLeagueInfo: 7148
 };
 
 Dota2.DOTAChatChannelType_t = {

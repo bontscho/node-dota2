@@ -1,6 +1,7 @@
 var Dota2 = require("../index"),
     fs = require("fs"),
     util = require("util"),
+    merge = require("merge"),
     Schema = require('protobuf').Schema,
     base_gcmessages = new Schema(fs.readFileSync(__dirname + "/../generated/base_gcmessages.desc")),
     gcsdk_gcmessages = new Schema(fs.readFileSync(__dirname + "/../generated/gcsdk_gcmessages.desc")),
@@ -43,6 +44,24 @@ Dota2.Dota2Client.prototype.matchmakingStatsRequest = function() {
   this._client.toGC(this._appid, (Dota2.EDOTAGCMsg.k_EMsgGCMatchmakingStatsRequest | protoMask), payload);
 };
 
+Dota2.Dota2Client.prototype.requestMatches = function(options, callback) {
+    callback = callback || null;
+
+    options = merge({
+        matchesRequested: 5
+    },options);
+
+    if (!this._gcReady) {
+        if (this.debug) util.log("GC not ready, please listen for the 'ready' event.");
+        return null;
+    }
+
+    if (this.debug) util.log("Sending CMsgDOTARequestMatches ");
+    var payload = dota_gcmessages_client.CMsgDOTARequestMatches.serialize(options);
+
+    this._client.toGC(this._appid, (Dota2.EDOTAGCMsg.k_EMsgGCRequestMatches | protoMask), payload, callback);
+}
+
 
 // Handlers
 
@@ -61,6 +80,22 @@ handlers[Dota2.EDOTAGCMsg.k_EMsgGCMatchDetailsResponse] = function onMatchDetail
       if (this.debug) util.log("Received a bad matchDetailsResponse");
       if (callback) callback(matchDetailsResponse.result, matchDetailsResponse);
   }
+};
+
+handlers[Dota2.EDOTAGCMsg.k_EMsgGCRequestMatchesResponse] = function onRequestMatchesResponse(message, callback) {
+    callback = callback || null;
+
+    var response = dota_gcmessages_client.CMsgDOTARequestMatchesResponse .parse(message);
+
+    if (response) {
+        if (this.debug) util.log("Received RequestMatches Reponse: " + response);
+        this.emit("requestMatchesResponse", response);
+        if (callback) callback(response);
+    }
+    else {
+        if (this.debug) util.log("Received a bad RequestMatches Response");
+        if (callback) callback(response);
+    }
 };
 
 

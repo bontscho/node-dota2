@@ -33,6 +33,20 @@ Dota2.Dota2Client.prototype.leaguesInMonthRequest = function(month, year, callba
   this._client.toGC(this._appid, (Dota2.EDOTAGCMsg.k_EMsgGCLeaguesInMonthRequest | protoMask), payload, callback);
 };
 
+Dota2.Dota2Client.prototype.requestLeagueInfo = function(callback) {
+    callback = callback || null;
+
+    if (!this._gcReady) {
+        if (this.debug) util.log("GC not ready, please listen for the 'ready' event.");
+        return null;
+    }
+
+    if (this.debug) util.log("Sending CMsgRequestLeagueInfo");
+    var payload = dota_gcmessages_client.CMsgRequestLeagueInfo.serialize({
+    });
+
+    this._client.toGC(this._appid, (Dota2.EDOTAGCMsg.k_EMsgRequestLeagueInfo | protoMask), payload, callback);
+}
 
 // Handlers
 
@@ -52,6 +66,24 @@ handlers[Dota2.EDOTAGCMsg.k_EMsgGCLeaguesInMonthResponse] = function onLeaguesIn
       if (callback) callback(response.eresult, response);
   }
 };
+
+// has no job target, so you have to listen to the event
+handlers[Dota2.EDOTAGCMsg.k_EMsgResponseLeagueInfo] = function onResponseLeagueInfo(message, callback) {
+    callback = callback || null;
+    var response = dota_gcmessages_client.CMsgResponseLeagueInfo.parse(message);
+
+    if (typeof(response["leagues"]) === "undefined") {
+        if (this.debug) util.log("Received a bad ResponseLeagueInfo");
+        if (callback) callback( response);
+    }
+    else {
+        if (this.debug) util.log("Received LeagueInfo response " + response);
+        this.emit("responseLeagueInfo", response, response);
+        if (callback) callback(response);
+    }
+};
+
+
 
 handlers[Dota2.EDOTAGCMsg.k_EMsgDOTALiveLeagueGameUpdate] = function(message, callback){
   var response = dota_gcmessages_client.CMsgDOTALiveLeagueGameUpdate.parse(message);

@@ -1,5 +1,5 @@
 var Dota2 = require("../index"),
-    merge = require("merge")
+    merge = require("merge"),
     fs = require("fs"),
     util = require("util"),
     Schema = require('protobuf').Schema,
